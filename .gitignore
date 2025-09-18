@@ -1,0 +1,27 @@
+# Arquivos gerados por IDEs
+.idea/
+.DS_Store
+.vscode/
+
+# Build e arquivos de plataforma
+/android/
+/ios/
+/build/
+/linux/
+/macos/
+/web/
+/windows/
+
+# Dependências e arquivos de cache
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+# pubspec.lock (Este arquivo é importante, veja a explicação abaixo)
+
+# Arquivos de certificados e chaves de segurança
+*.jks
+*.p12
+*.key
+*.pem
+google-services.json

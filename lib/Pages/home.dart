@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Página Inicial'),
+        backgroundColor: const Color(0xFFC7A868),
+      ),
+      body: const Center(
+        child: Text(
+          'Bem-vindo!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+    );
+  }
+}

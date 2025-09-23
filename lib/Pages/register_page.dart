@@ -254,7 +254,7 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       dropdownColor: Colors.black,
       style: const TextStyle(color: Colors.white),
-      value: _selectedGender,
+      initialValue: _selectedGender,
       items: const [
         DropdownMenuItem(
           value: 'Masculino',

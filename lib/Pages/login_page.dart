@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'home.dart';
 import 'register_page.dart'; // Adicione esta linha para importar a página de cadastro
 

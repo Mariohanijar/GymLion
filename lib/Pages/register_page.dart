@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -8,17 +10,16 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // Chave global para o formulário, útil para validação
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores para pegar os valores dos campos
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
 
-  // Variável para o valor selecionado no gênero
+ 
   String? _selectedGender;
 
   @override
@@ -31,32 +32,50 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Se o formulário for válido, você pode pegar os dados e fazer algo com eles.
-      String username = _usernameController.text;
-      String email = _emailController.text;
-      String password = _passwordController.text;
-      String gender = _selectedGender ?? 'Não informado';
-      String height = _heightController.text;
-      String weight = _weightController.text;
+  Future<void> _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    String username = _usernameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    String gender = _selectedGender ?? 'Não informado';
+    String height = _heightController.text;
+    String weight = _weightController.text;
 
-      // Por enquanto, apenas imprima os dados no console
-      print('Dados do Cadastro:');
-      print('Nome de Usuário: $username');
-      print('Email: $email');
-      print('Senha: $password');
-      print('Gênero: $gender');
-      print('Altura: $height cm');
-      print('Peso: $weight kg');
+    // Montar JSON para o backend
+    final body = jsonEncode({
+      "username": username,
+      "email": email,
+      "password": password,
+      "gender": gender,
+      "height": double.tryParse(height),
+      "weight": double.tryParse(weight),
+    });
 
-      // Aqui você poderia, por exemplo, enviar os dados para um backend
-      // e depois navegar para a próxima página.
+    try {
+    
+      final response = await http.post(
+        Uri.parse("http://10.0.2.2:5268/api/users"), 
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Cadastro realizado com sucesso!")),
+        );
+        Navigator.pop(context); // volta para login
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro: ${response.body}")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+        SnackBar(content: Text("Falha ao conectar: $e")),
       );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

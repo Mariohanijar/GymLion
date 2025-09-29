@@ -1,9 +1,63 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
-import 'register_page.dart'; // Adicione esta linha para importar a página de cadastro
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class LoginPage extends StatelessWidget {
+import 'home.dart';
+import 'register_page.dart';
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _loading = false;
+  String? _error;
+
+  Future<void> _login() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    final url = Uri.parse('http://10.0.2.2:5268/api/users/login');
+    final body = {
+      'email': _emailController.text.trim(),
+      'passwordHash': _passwordController.text.trim(),
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        // Login bem-sucedido → vai para Home
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        setState(() {
+          _error = 'Credenciais inválidas';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Erro de conexão com o servidor';
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +69,7 @@ class LoginPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo do Gymlion
-              Image.asset(
-                'assets/logo-leao.jpg',
-                height: 120,
-              ),
+              Image.asset('assets/logo-leao.jpg', height: 120),
               const SizedBox(height: 16),
               const Text(
                 'GYMLION',
@@ -31,10 +81,11 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 48),
 
-              // Campo de E-mail ou Usuário
+              // Campo E-mail
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'E-mail ou usuário',
+                  labelText: 'E-mail',
                   labelStyle: const TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Colors.black,
@@ -55,8 +106,9 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Campo de Senha
+              // Campo Senha
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Senha',
@@ -80,14 +132,14 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // Botão de Acesso
+              if (_error != null)
+                Text(
+                  _error!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                },
+                onPressed: _loading ? null : _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFC7A868),
                   minimumSize: const Size(double.infinity, 50),
@@ -95,21 +147,21 @@ class LoginPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                child: const Text(
-                  'Acessar',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _loading
+                    ? const CircularProgressIndicator(color: Colors.black)
+                    : const Text(
+                        'Acessar',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
-              const SizedBox(height: 20), // Espaçamento entre os botões
+              const SizedBox(height: 20),
 
-              // Texto e Link para a página de cadastro
               TextButton(
                 onPressed: () {
-                  // Navega para a página de cadastro
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const RegisterPage()),
@@ -118,10 +170,7 @@ class LoginPage extends StatelessWidget {
                 child: RichText(
                   text: const TextSpan(
                     text: 'Não tem conta? ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 14),
                     children: [
                       TextSpan(
                         text: 'Criar aqui',

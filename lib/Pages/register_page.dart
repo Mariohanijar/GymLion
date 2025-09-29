@@ -45,7 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final body = jsonEncode({
       "username": username,
       "email": email,
-      "password": password,
+      "PasswordHash": password,
       "gender": gender,
       "height": double.tryParse(height),
       "weight": double.tryParse(weight),

@@ -1,7 +1,7 @@
-// lib/training_selection_page.dart
+// lib/pages/training_selection_page.dart
 
 import 'package:flutter/material.dart';
-import 'exercise_options_page.dart'; // Importa a próxima tela
+import 'exercise_options_page.dart'; 
 
 class TrainingSelectionPage extends StatelessWidget {
   const TrainingSelectionPage({super.key});
@@ -32,17 +32,13 @@ class TrainingSelectionPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC7A868), // Cor de ouro/amarela
+          backgroundColor: const Color(0xFFC7A868), 
           foregroundColor: Colors.black,
-          minimumSize: const Size(double.infinity, 70), // Botão grande
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          minimumSize: const Size(double.infinity, 70), 
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
-          // Ação: Navegar para a tela de opções de exercícios, 
-          // passando a Parte do Corpo escolhida!
           Navigator.push(
             context,
             MaterialPageRoute(

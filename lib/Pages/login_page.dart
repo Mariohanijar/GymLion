@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gym/user_session.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home.dart';
 import 'register_page.dart';
@@ -38,12 +40,26 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
-        // Login bem-sucedido → vai para Home
+        final data = jsonDecode(response.body);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('user_id', data['id']);
+        await prefs.setString('username', data['username']);
+        await prefs.setString('email', data['email']);
+
+        // <-- Atualiza o SessionManager também
+        SessionManager.currentUser = UserSession(
+          id: data['id'],
+          username: data['username'],
+          email: data['email'],
+        );
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
-      } else {
+      }
+ else {
         setState(() {
           _error = 'Credenciais inválidas';
         });

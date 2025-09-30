@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym/user_session.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -43,7 +44,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 style: const TextStyle(color: Colors.white),
-                controller: TextEditingController(text: 'Mario'), // Valor inicial
+                controller: TextEditingController(text:  SessionManager.currentUser?.username ?? 'Usuário',), // Valor inicial
               ),
               const SizedBox(height: 20),
               ElevatedButton(

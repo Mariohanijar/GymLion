@@ -1,9 +1,10 @@
 // lib/pages/home_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:gym/user_session.dart';
 import 'training_selection_page.dart'; 
 import 'history_page.dart'; 
-import 'profile_page.dart'; // <<< NOVO: Importa a página de perfil
+import 'profile_page.dart'; 
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -82,25 +83,28 @@ class _HomePageState extends State<HomePage> {
                       ),
                       // PERFIL/EDITAR (AGORA FUNCIONAL)
                       GestureDetector(
-                        onTap: () {
-                          // <<< AÇÃO DE NAVEGAÇÃO PARA PERFIL >>>
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ProfilePage()),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Text('Mario', style: TextStyle(color: Colors.white, fontSize: 18)),
-                            const SizedBox(width: 8),
-                            const CircleAvatar(
-                              backgroundColor: Color(0xFFC7A868),
-                              radius: 15,
-                              child: Icon(Icons.person, size: 20, color: Colors.black),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Text(
+                                    SessionManager.currentUser?.username ?? 'Usuário',
+                                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const CircleAvatar(
+                                    backgroundColor: Color(0xFFC7A868),
+                                    radius: 15,
+                                    child: Icon(Icons.person, size: 20, color: Colors.black),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
+
                     ],
                   ),
                 ],

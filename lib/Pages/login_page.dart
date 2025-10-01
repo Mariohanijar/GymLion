@@ -1,10 +1,13 @@
-// lib/pages/login_page.dart - AGORA COM NAVEGAÇÃO CORRETA PARA CADASTRO
+// lib/pages/login_page.dart - CÓDIGO FINAL E LIMPO
 
 import 'package:flutter/material.dart';
-// REMOVIDO: import de http e shared_preferences
-import 'main_nav_page.dart';
-// 1. IMPORTAR A PÁGINA DE CADASTRO
-import 'register_page.dart'; // O caminho está correto se estiver na mesma pasta 'pages/'
+import 'package:gym/user_session.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'main_nav_page.dart'; 
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,21 +17,72 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailUsernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
+  
+  bool _loading = false;
+  String? _error;
 
-  void _performLogin() async {
+  Future<void> _login() async {
     setState(() {
-      _isLoading = true;
+      _loading = true;
+      _error = null;
     });
 
-    await Future.delayed(const Duration(milliseconds: 500));
-    _navigateToMainScreen();
+    final input = _emailUsernameController.text.trim();
+    final url = Uri.parse('http://10.0.2.2:5268/api/users/login');
+    
+    final body = {
+      'email': input, 
+      'password': _passwordController.text.trim(), 
+    };
 
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('user_id', data['id']);
+        await prefs.setString('username', data['username']);
+        await prefs.setString('email', data['email']);
+
+        SessionManager.currentUser = UserSession(
+          id: data['id'],
+          username: data['username'],
+          email: data['email'],
+        );
+
+        _navigateToMainScreen();
+
+      } else {
+        String errorMessage = 'Credenciais inválidas';
+        try {
+          final errorBody = jsonDecode(response.body);
+          if (errorBody is Map && errorBody.containsKey('message')) {
+            errorMessage = errorBody['message'];
+          }
+        } catch (_) {
+        }
+        
+        setState(() {
+          _error = errorMessage;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Erro de conexão com o servidor. Verifique a URL.';
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   void _navigateToMainScreen() {
@@ -38,7 +92,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // 2. NOVA FUNÇÃO DE NAVEGAÇÃO PARA O REGISTRO
   void _navigateToRegister() {
     Navigator.push(
       context,
@@ -48,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Pegando a cor primária para estilizar o texto
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
@@ -56,15 +108,15 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.black,
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView( 
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               // LOGO
               Image.asset(
-                './assets/logo-leao.jpg', 
-                height: 100,
+                'assets/logo-leao.jpg', 
+                height: 120, 
               ),
               
               // TEXTO GYMLION ABAIXO DA LOGO
@@ -79,17 +131,21 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 50),
 
-              // Campo Email
+              // Campo E-mail ou Nome de Usuário
               TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                controller: _emailUsernameController,
+                keyboardType: TextInputType.emailAddress, 
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'E-mail ou Nome de Usuário',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  filled: true,
+                  fillColor: Colors.black,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  prefixIcon: const Icon(Icons.email),
+                  prefixIcon: const Icon(Icons.person, color: Colors.white),
                 ),
+                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 16),
 
@@ -99,20 +155,32 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Senha',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  filled: true,
+                  fillColor: Colors.black,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  prefixIcon: const Icon(Icons.lock),
+                  prefixIcon: const Icon(Icons.lock, color: Colors.white),
                 ),
+                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 24),
 
+              // Exibe erro
+              if (_error != null)
+                Text(
+                  _error!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              const SizedBox(height: 10),
+              
               // Botão de Login
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _performLogin,
+                  onPressed: _loading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.black,
@@ -120,10 +188,10 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: _isLoading
+                  child: _loading
                       ? const CircularProgressIndicator(color: Colors.black)
                       : const Text(
-                          'Entrar',
+                          'Acessar',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -133,13 +201,23 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
 
-              // Link para Cadastro (3. CHAMA A FUNÇÃO CORRETA)
+              // Link para Cadastro
               TextButton(
-                onPressed: _navigateToRegister, // Chamando a função para navegar
-                child: Text(
-                  'Não tem conta? Cadastre-se aqui.',
-                  style: TextStyle(
-                    color: primaryColor.withOpacity(0.7),
+                onPressed: _navigateToRegister,
+                child: RichText(
+                  text: TextSpan(
+                    text: 'Não tem conta? ',
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    children: [
+                      TextSpan(
+                        text: 'Criar aqui',
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

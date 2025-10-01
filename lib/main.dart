@@ -25,6 +25,8 @@ const MaterialColor gymlionGold = MaterialColor(
   },
 );
 
+
+
 void main() {
   runApp(
     // Envolve toda a aplicação com o TrainingManager (Provider)

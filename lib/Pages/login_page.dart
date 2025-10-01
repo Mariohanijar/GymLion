@@ -15,7 +15,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  // Alterado para aceitar E-mail ou Nome de Usuário
+  final TextEditingController _emailUsernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _loading = false;
   String? _error;
@@ -26,10 +27,14 @@ class _LoginPageState extends State<LoginPage> {
       _error = null;
     });
 
+    final input = _emailUsernameController.text.trim();
+
     final url = Uri.parse('http://10.0.2.2:5268/api/users/login');
+    
+
     final body = {
-      'email': _emailController.text.trim(),
-      'passwordHash': _passwordController.text.trim(),
+      'email': input, 
+      'password': _passwordController.text.trim(), 
     };
 
     try {
@@ -47,26 +52,38 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('username', data['username']);
         await prefs.setString('email', data['email']);
 
-        // <-- Atualiza o SessionManager também
+
         SessionManager.currentUser = UserSession(
           id: data['id'],
           username: data['username'],
           email: data['email'],
         );
 
+ 
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
-      }
- else {
+      } else {
+
+        String errorMessage = 'Credenciais inválidas';
+        try {
+          final errorBody = jsonDecode(response.body);
+          if (errorBody is Map && errorBody.containsKey('message')) {
+            errorMessage = errorBody['message'];
+          }
+        } catch (_) {
+
+        }
+        
         setState(() {
-          _error = 'Credenciais inválidas';
+          _error = errorMessage;
         });
       }
     } catch (e) {
+
       setState(() {
-        _error = 'Erro de conexão com o servidor';
+        _error = 'Erro de conexão com o servidor. Verifique a URL.';
       });
     } finally {
       setState(() {
@@ -97,9 +114,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 48),
 
-              // Campo E-mail
+              // Campo E-mail ou Nome de Usuário
               TextField(
-                controller: _emailController,
+                controller: _emailUsernameController,
                 decoration: InputDecoration(
                   labelText: 'E-mail',
                   labelStyle: const TextStyle(color: Colors.white),
@@ -153,6 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                   _error!,
                   style: const TextStyle(color: Colors.red),
                 ),
+              const SizedBox(height: 10),
 
               ElevatedButton(
                 onPressed: _loading ? null : _login,

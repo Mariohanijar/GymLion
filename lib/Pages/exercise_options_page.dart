@@ -62,13 +62,13 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
       return;
     }
 
-    // 1. Salva o treino montado no TrainingManager (para reuso)
+    //Salvando o treino montado no TrainingManager 
     Provider.of<TrainingManager>(context, listen: false).setWorkoutPlan(
       widget.bodyPart,
       _selectedExercises,
     );
     
-    // 2. Navega para a tela de execução
+  
     Navigator.push(
       context,
       MaterialPageRoute(

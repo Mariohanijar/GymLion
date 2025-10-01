@@ -1,138 +1,120 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'home.dart';
-import 'register_page.dart'; // Adicione esta linha para importar a página de cadastro
+// lib/pages/login_page.dart - COM LOGO
 
-class LoginPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+// REMOVIDO: import de http e shared_preferences
+import 'main_nav_page.dart';
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  void _performLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    _navigateToMainScreen();
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _navigateToMainScreen() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const MainNavPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(
+        // Removendo o título do AppBar para focar no logo centralizado
+        backgroundColor: Colors.black,
+      ),
       body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo do Gymlion
-              Image.asset(
-                'assets/logo-leao.jpg',
-                height: 120,
+            children: <Widget>[
+              Image.asset('./assets/logo-leao.jpg', height: 100),
+              const SizedBox(height: 30),
+
+              // Campo Email
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  prefixIcon: const Icon(Icons.email),
+                ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'GYMLION',
-                style: TextStyle(
-                  color: Color(0xFFC7A868),
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 48),
 
-              // Campo de E-mail ou Usuário
+              // Campo Senha
               TextField(
-                decoration: InputDecoration(
-                  labelText: 'E-mail ou usuário',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.black,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Color(0xFFC7A868)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Color(0xFFC7A868)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Color(0xFFC7A868)),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo de Senha
-              TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Senha',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.black,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Color(0xFFC7A868)),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Color(0xFFC7A868)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Color(0xFFC7A868)),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 40),
-
-              // Botão de Acesso
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC7A868),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: const Text(
-                  'Acessar',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  prefixIcon: const Icon(Icons.lock),
                 ),
               ),
-              const SizedBox(height: 20), // Espaçamento entre os botões
+              const SizedBox(height: 24),
 
-              // Texto e Link para a página de cadastro
+              // Botão de Login
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _performLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.black)
+                      : const Text(
+                          'Entrar',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Link para Cadastro
               TextButton(
                 onPressed: () {
-                  // Navega para a página de cadastro
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RegisterPage()),
-                  );
+                  print('Navegar para a página de registro...');
                 },
-                child: RichText(
-                  text: const TextSpan(
-                    text: 'Não tem conta? ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'Criar aqui',
-                        style: TextStyle(
-                          color: Color(0xFFC7A868),
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
+                child: Text(
+                  'Não tem conta? Cadastre-se aqui.',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor.withOpacity(0.7),
                   ),
                 ),
               ),

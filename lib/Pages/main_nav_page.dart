@@ -1,11 +1,11 @@
 // lib/pages/main_nav_page.dart
 
 import 'package:flutter/material.dart';
-import 'home.dart';           // Aba 0: Home/Geral
+import 'home.dart'; // Aba 0: Home/Geral
 import 'training_selection_page.dart'; // Aba 1: Criar/Montar Novo Treino
-import 'my_workouts_page.dart';    // Aba 2: Treinos Salvos (Meus Treinos)
-import 'performance_page.dart';    // Aba 3: Desempenho/Dashboard
-import 'chatbot_page.dart';        // Aba 4: IA/Chatbot
+import 'my_workouts_page.dart'; // Aba 2: Treinos Salvos (Meus Treinos)
+import 'performance_page.dart'; // Aba 3: Desempenho/Dashboard
+import 'chatbot_page.dart'; // Aba 4: IA/Chatbot
 
 class MainNavPage extends StatefulWidget {
   const MainNavPage({super.key});
@@ -19,11 +19,11 @@ class _MainNavPageState extends State<MainNavPage> {
 
   // Lista de todas as telas que o rodapé irá exibir
   static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),             
+    HomePage(),
     TrainingSelectionPage(),
-    MyWorkoutsPage(),       
-    PerformancePage(),      
-    ChatbotPage(),          
+    MyWorkoutsPage(),
+    PerformancePage(),
+    ChatbotPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -41,6 +41,7 @@ class _MainNavPageState extends State<MainNavPage> {
       // O Rodapé de Navegação (BottomNavigationBar)
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
+          // ... (seus BottomNavigationBarItems)
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             label: 'Home',
@@ -63,10 +64,25 @@ class _MainNavPageState extends State<MainNavPage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed, // Garante que todos os 5 itens caibam
-        selectedItemColor: Theme.of(context).primaryColor, // Usa o dourado do tema
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey[600],
-        backgroundColor: Colors.black, // Fundo do rodapé preto
+        backgroundColor: Colors.black,
+
+        // AJUSTES DE TAMANHO PARA AUMENTAR O FOOTER:
+
+        // Aumenta o tamanho dos ícones
+        iconSize: 30,
+
+        // Aumenta o tamanho da fonte do item selecionado
+        selectedLabelStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+
+        // Aumenta o tamanho da fonte dos outros itens
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
+
         onTap: _onItemTapped,
       ),
     );

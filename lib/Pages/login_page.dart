@@ -1,8 +1,10 @@
-// lib/pages/login_page.dart - COM LOGO
+// lib/pages/login_page.dart - AGORA COM NAVEGAÇÃO CORRETA PARA CADASTRO
 
 import 'package:flutter/material.dart';
 // REMOVIDO: import de http e shared_preferences
 import 'main_nav_page.dart';
+// 1. IMPORTAR A PÁGINA DE CADASTRO
+import 'register_page.dart'; // O caminho está correto se estiver na mesma pasta 'pages/'
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -36,11 +38,21 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // 2. NOVA FUNÇÃO DE NAVEGAÇÃO PARA O REGISTRO
+  void _navigateToRegister() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Pegando a cor primária para estilizar o texto
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       appBar: AppBar(
-        // Removendo o título do AppBar para focar no logo centralizado
         backgroundColor: Colors.black,
       ),
       body: Center(
@@ -49,8 +61,23 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Image.asset('./assets/logo-leao.jpg', height: 100),
-              const SizedBox(height: 30),
+              // LOGO
+              Image.asset(
+                './assets/logo-leao.jpg', 
+                height: 100,
+              ),
+              
+              // TEXTO GYMLION ABAIXO DA LOGO
+              Text(
+                'GYMLION',
+                style: TextStyle(
+                  color: primaryColor,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 50),
 
               // Campo Email
               TextField(
@@ -87,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _performLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: primaryColor,
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -106,15 +133,13 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
 
-              // Link para Cadastro
+              // Link para Cadastro (3. CHAMA A FUNÇÃO CORRETA)
               TextButton(
-                onPressed: () {
-                  print('Navegar para a página de registro...');
-                },
+                onPressed: _navigateToRegister, // Chamando a função para navegar
                 child: Text(
                   'Não tem conta? Cadastre-se aqui.',
                   style: TextStyle(
-                    color: Theme.of(context).primaryColor.withOpacity(0.7),
+                    color: primaryColor.withOpacity(0.7),
                   ),
                 ),
               ),

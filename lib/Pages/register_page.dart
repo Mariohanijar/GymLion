@@ -132,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
   
-  // Funções Auxiliares de Validação
+
 
   String? _validateRequired(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -143,7 +143,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String? _validateEmail(String? value) {
     if (_validateRequired(value) != null) return 'E-mail é obrigatório';
-    // Regex simples para validação de e-mail
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
       return 'E-mail inválido';
     }
@@ -164,8 +163,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-
-  // Widget para criar TextFields padronizados
   Widget _buildTextField(
     TextEditingController controller, 
     String label, 

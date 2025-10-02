@@ -1,9 +1,6 @@
-// lib/pages/workout_execution_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'training_manager.dart';
-import 'home.dart'; // Para voltar para a Home
 import 'main_nav_page.dart';
 
 class WorkoutExecutionPage extends StatefulWidget {
@@ -33,7 +30,6 @@ class _WorkoutExecutionPageState extends State<WorkoutExecutionPage> {
     });
   }
 
-  // FUNÇÃO CORRIGIDA PARA VOLTAR PARA A HOME
   void _finishWorkout() {
     final manager = Provider.of<TrainingManager>(context, listen: false);
 
@@ -50,11 +46,11 @@ class _WorkoutExecutionPageState extends State<WorkoutExecutionPage> {
       ),
     );
 
-    // Navega para a Home Page, limpando as telas de treino que estavam na pilha.
+
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const MainNavPage()),
       (Route<dynamic> route) =>
-          route.isFirst, // Limpa tudo até o Login/Primeira Rota
+          route.isFirst,
     );
   }
 

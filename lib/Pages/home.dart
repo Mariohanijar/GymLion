@@ -154,35 +154,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // Área do Chatbot "Gym Bro"
-              const Text('Gym Bro', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[900], 
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: TextField(
-                  controller: _chatInputController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Converse com o Gym Bro...',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
-                    border: InputBorder.none, 
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.send, color: Color(0xFFC7A868)),
-                      onPressed: () {
-                        if (_chatInputController.text.isNotEmpty) {
-                          debugPrint('Mensagem para Gym Bro: ${_chatInputController.text}');
-                          _chatInputController.clear(); 
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

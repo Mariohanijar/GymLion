@@ -1,8 +1,4 @@
-// lib/managers/training_manager.dart
-
 import 'package:flutter/foundation.dart';
-
-// --- MODELOS DE DADOS ---
 
 class ExerciseSet {
   final int series;
@@ -29,24 +25,23 @@ class Workout {
   });
 }
 
-// --- CLASSE DE GERENCIAMENTO (SIMULAÇÃO DO BANCO) ---
+
 
 class TrainingManager extends ChangeNotifier {
   List<WorkoutExercise> _currentWorkoutPlan = [];
   final List<Workout> _history = [];
 
-  // Getters
+
   List<WorkoutExercise> get currentWorkoutPlan => _currentWorkoutPlan;
   List<Workout> get history => _history.reversed.toList();
 
-  // Define o treino atual após o usuário montar (para reuso)
   void setWorkoutPlan(String bodyPart, List<WorkoutExercise> exercises) {
     _currentWorkoutPlan = exercises;
     debugPrint('Plano de treino atualizado: $bodyPart com ${exercises.length} exercícios.');
     notifyListeners();
   }
 
-  // Salva o treino executado no histórico
+
   void saveWorkout(String bodyPart, List<WorkoutExercise> executedExercises) {
     if (executedExercises.isEmpty) return;
 

@@ -1,5 +1,3 @@
-// lib/pages/training_selection_page.dart
-
 import 'package:flutter/material.dart';
 import 'exercise_options_page.dart'; 
 

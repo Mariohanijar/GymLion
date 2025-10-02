@@ -56,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
           id: data['id'],
           username: data['username'],
           email: data['email'],
+          name:data['name']
         );
 
         _navigateToMainScreen();

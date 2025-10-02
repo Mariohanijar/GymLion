@@ -1,5 +1,3 @@
-// lib/pages/history_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'training_manager.dart'; 
@@ -20,7 +18,6 @@ class HistoryPage extends StatelessWidget {
       ),
       backgroundColor: Colors.black,
       body: history.isEmpty
-          // Aviso de SEM HISTÓRICO
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +35,6 @@ class HistoryPage extends StatelessWidget {
                 ],
               ),
             )
-          // Lista de Histórico
           : ListView.builder(
               itemCount: history.length,
               itemBuilder: (context, index) {
@@ -57,7 +53,6 @@ class HistoryPage extends StatelessWidget {
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
                     onTap: () {
-                      // Implementar navegação para ver detalhes do treino.
                     },
                   ),
                 );

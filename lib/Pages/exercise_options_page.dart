@@ -1,8 +1,6 @@
-// lib/pages/exercise_options_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'training_manager.dart'; // Importa o manager
+import 'training_manager.dart';
 import 'workout_execution_page.dart'; 
 
 class ExerciseOptionsPage extends StatefulWidget {
@@ -61,8 +59,6 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
       );
       return;
     }
-
-    //Salvando o treino montado no TrainingManager 
     Provider.of<TrainingManager>(context, listen: false).setWorkoutPlan(
       widget.bodyPart,
       _selectedExercises,
@@ -103,7 +99,6 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      // Botão "Começar Treino" no bottom
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16.0),
         color: Colors.black,
@@ -139,10 +134,6 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
     );
   }
 }
-
-// --------------------------------------------------------------------------
-// POP-UP DE SELEÇÃO DE SÉRIES/REPETIÇÕES
-// --------------------------------------------------------------------------
 
 typedef AddExerciseCallback = void Function(String name, int series, int reps);
 

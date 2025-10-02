@@ -1,5 +1,3 @@
-// lib/pages/login_page.dart - CÓDIGO FINAL E LIMPO
-
 import 'package:flutter/material.dart';
 import 'package:gym/user_session.dart';
 import 'package:http/http.dart' as http;
@@ -114,13 +112,10 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // LOGO
               Image.asset(
                 'assets/logo-leao.jpg', 
                 height: 120, 
               ),
-              
-              // TEXTO GYMLION ABAIXO DA LOGO
               Text(
                 'GYMLION',
                 style: TextStyle(
@@ -131,8 +126,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 50),
-
-              // Campo E-mail ou Nome de Usuário
               TextField(
                 controller: _emailUsernameController,
                 keyboardType: TextInputType.emailAddress, 
@@ -149,8 +142,6 @@ class _LoginPageState extends State<LoginPage> {
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 16),
-
-              // Campo Senha
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -167,16 +158,12 @@ class _LoginPageState extends State<LoginPage> {
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 24),
-
-              // Exibe erro
               if (_error != null)
                 Text(
                   _error!,
                   style: const TextStyle(color: Colors.red),
                 ),
               const SizedBox(height: 10),
-              
-              // Botão de Login
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -201,8 +188,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Link para Cadastro
               TextButton(
                 onPressed: _navigateToRegister,
                 child: RichText(

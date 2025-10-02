@@ -35,11 +35,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Acessa os dados do usuário
     final currentUser = SessionManager.currentUser;
-    
-
-    // Formata o ID como string
     final idDisplay = currentUser?.id.toString() ?? 'ID indisponível';
 
     return Scaffold(

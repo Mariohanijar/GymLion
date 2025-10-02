@@ -1,4 +1,3 @@
-// lib/pages/my_workouts_page.dart
 import 'package:flutter/material.dart';
 class MyWorkoutsPage extends StatelessWidget {
   const MyWorkoutsPage({super.key});

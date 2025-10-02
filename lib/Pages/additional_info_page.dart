@@ -1,5 +1,3 @@
-// additional_info_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -25,18 +23,17 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
   bool _loading = false;
   String? _error;
 
-  // Função para abrir o seletor de data
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)), // Inicializa em 18 anos atrás
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)), 
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFC7A868), // Cor primária do seletor
+              primary: Color(0xFFC7A868), 
               onPrimary: Colors.black,
               surface: Colors.black,
               onSurface: Colors.white,
@@ -50,7 +47,6 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
 
     if (picked != null) {
       setState(() {
-        // Formata a data para "YYYY-MM-DD" para o backend
         _birthdayController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
@@ -63,8 +59,6 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
       _loading = true;
       _error = null;
     });
-
-    // 1. Combina os dados da Página 1 e Página 2
     final completeData = {
       ...widget.page1Data, // Dados do primeiro passo
       'height': double.tryParse(_heightController.text) ?? 0.0,
@@ -72,7 +66,7 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
       'birthday': _birthdayController.text,
     };
     
-    // 2. Endpoint de registro (AJUSTE CONFORME SEU BACKEND)
+
     final url = Uri.parse('http://10.0.2.2:5268/api/users/register'); 
 
     try {
@@ -83,19 +77,16 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Sucesso no registro! Navega para a página de Login.
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Cadastro concluído com sucesso!')),
         );
 
-        // Remove todas as rotas e navega para o Login
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()), 
           (Route<dynamic> route) => false,
         );
       } else {
-        // Erro de registro no servidor (ex: e-mail duplicado)
         final errorBody = jsonDecode(response.body);
         setState(() {
           _error = errorBody['message'] ?? 'Falha no registro. Verifique seus dados.';
@@ -138,12 +129,8 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // Campo Altura
                 _buildTextField(_heightController, 'Altura (cm)', keyboardType: TextInputType.number, validator: _validateNumeric),
                 const SizedBox(height: 20),
-
-                // Campo Peso
                 _buildTextField(_weightController, 'Peso (kg)', keyboardType: TextInputType.number, validator: _validateNumeric),
                 const SizedBox(height: 20),
 
@@ -194,8 +181,6 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
     );
   }
 
-  // Funções Auxiliares de Validação
-
   String? _validateNumeric(String? value) {
     if (value == null || value.isEmpty) {
       return 'Campo obrigatório';
@@ -206,7 +191,6 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
     return null;
   }
 
-  // Widget para criar TextFields padronizados
   Widget _buildTextField(
     TextEditingController controller, 
     String label, 

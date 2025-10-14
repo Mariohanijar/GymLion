@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart'; // Pacote manual do Gemini
+import 'package:google_generative_ai/google_generative_ai.dart'; 
 
 // ==========================================================
 // 1. MODELO DE DADOS
 // ==========================================================
 
-// Modelo simples para armazenar mensagens (Necessário para a lista _messages)
+// Modelo simples para armazenar mensagens
 class ChatMessage {
   final String text;
   final bool isUser; 
@@ -24,10 +24,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
   final TextEditingController _chatInputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   
-  // CORREÇÃO 1: Declaração da lista de mensagens
   final List<ChatMessage> _messages = [];
-  
-  // Inicialização tardia do modelo Gemini
   late final GenerativeModel _model; 
   bool _isAILoading = false;
   
@@ -35,15 +32,12 @@ class _ChatbotPageState extends State<ChatbotPage> {
   void initState() {
     super.initState();
     
-    // Inicialização do modelo (Necessário apenas uma vez)
-    // ATENÇÃO: Verifique se a chave no seu .env está como 'GOOGLE_API_KEY'
+    // Inicialização do modelo
     final apiKey = dotenv.env['GOOGLE_API_KEY']!;
     
-    // Inicializa o modelo (Versão 'gemini-pro' ou 'gemini-2.5-flash' se preferir)
     _model = GenerativeModel(
       model: 'gemini-2.5-flash', 
       apiKey: apiKey,
-      // Sem config/generationConfig para evitar erros de versão (modo geral)
     );
 
     // Mensagem de boas-vindas inicial da IA
@@ -60,22 +54,20 @@ class _ChatbotPageState extends State<ChatbotPage> {
     super.dispose();
   }
 
-  // 2. Lógica para enviar a mensagem (Método corrigido e integrado)
   void _sendMessage() async {
     final text = _chatInputController.text.trim();
     if (text.isEmpty || _isAILoading) return;
 
-    // 2.1. Adiciona a mensagem do usuário na lista e limpa o input
+    // 2.1. Adiciona a mensagem do usuário na lista
     setState(() {
       _messages.add(ChatMessage(text: text, isUser: true));
       _chatInputController.clear();
-      _isAILoading = true; // Ativa o loading
+      _isAILoading = true; 
     });
 
     _scrollToEnd(); // Rola para a nova mensagem
 
     try {
-      // 2.2. Chama o modelo Gemini
       final promptContent = [Content.text(text)];
       final response = await _model.generateContent(promptContent);
       
@@ -84,7 +76,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
       // 2.3. Adiciona a resposta da IA na lista
       setState(() {
         _messages.add(ChatMessage(text: responseText, isUser: false));
-        _isAILoading = false; // Desativa o loading
+        _isAILoading = false;
       });
       _scrollToEnd();
       
@@ -98,13 +90,12 @@ class _ChatbotPageState extends State<ChatbotPage> {
     }
   }
 
-  // Rola a lista para a mensagem mais recente
+  // CORREÇÃO 2: Rola para o FINAL da lista (offset máximo)
   void _scrollToEnd() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        // Rola para a última mensagem (o topo da lista revertida)
         _scrollController.animateTo(
-          0.0,
+          _scrollController.position.maxScrollExtent, // <-- Rola para o final
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -112,7 +103,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
     });
   }
 
-  // 3. Widget para o Balão de Mensagem
+  // 3. Widget para o Balão de Mensagem (Sem alterações)
   Widget _buildMessageBubble(ChatMessage message, BuildContext context, Color primaryColor) {
     final isUser = message.isUser;
 
@@ -145,24 +136,22 @@ class _ChatbotPageState extends State<ChatbotPage> {
   // 4. Estrutura de UI
   @override
   Widget build(BuildContext context) {
-    // Cor dourada/primária do seu tema
     final primaryColor = const Color(0xFFC7A868);
     
     return Scaffold(
       backgroundColor: Colors.black, 
       appBar: AppBar(
-        title: const Text('Assistente de IA'), // Título neutro
+        title: const Text('Assistente de IA'), 
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
       body: Column(
         children: <Widget>[
-          // CORREÇÃO 3: Substitui o Center por ListView.builder para mostrar as mensagens
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(12.0),
-              reverse: true, // Para que a última mensagem fique na parte inferior
+              reverse: false, // <--- CORREÇÃO 1: Removendo o reverse
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
@@ -171,7 +160,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
             ),
           ),
 
-          // Indicador de digitação da IA
+          // Indicador de digitação da IA (Sem alterações)
           if (_isAILoading)
             const Padding(
               padding: EdgeInsets.only(bottom: 8.0, left: 16.0),
@@ -191,7 +180,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
               ),
             ),
           
-          // Campo de input
+          // Campo de input (Sem alterações)
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
@@ -216,7 +205,6 @@ class _ChatbotPageState extends State<ChatbotPage> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.send, color: Color(0xFFC7A868)),
-                    // CORREÇÃO 4: Conecta o botão à lógica de envio
                     onPressed: _sendMessage,
                   ),
                 ],

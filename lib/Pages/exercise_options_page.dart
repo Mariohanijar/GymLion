@@ -1,7 +1,10 @@
+// lib/pages/exercise_options_page.dart (Ajustado)
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'training_manager.dart';
+import '../Pages/training_manager.dart'; // Certifique-se de que o caminho está correto!
 import 'workout_execution_page.dart'; 
+// Certifique-se de que ExerciseSet e WorkoutExercise estão em training_manager.dart
 
 class ExerciseOptionsPage extends StatefulWidget {
   final String bodyPart; 
@@ -14,6 +17,7 @@ class ExerciseOptionsPage extends StatefulWidget {
 class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
   final List<WorkoutExercise> _selectedExercises = [];
 
+  // 1. Obtém exercícios PADRÕES (apenas nomes)
   List<String> _getExercises(String part) {
     switch (part) {
       case 'Superiores':
@@ -29,9 +33,11 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
     }
   }
 
+  // Função para adicionar o exercício (chamada pelo SetRepSelectionDialog)
   void _addExerciseToPlan(String exerciseName, int series, int reps) {
     final newSet = ExerciseSet(series: series, repetitions: reps);
-    final newExercise = WorkoutExercise(name: exerciseName, setsReps: newSet);
+    // Adiciona isCustom: true se for um exercício criado pelo usuário, mas aqui é só para o plano.
+    final newExercise = WorkoutExercise(name: exerciseName, setsReps: newSet); 
     
     setState(() {
       _selectedExercises.add(newExercise);
@@ -48,6 +54,64 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
       ),
     );
   }
+  
+  // ----------------------------------------------------
+  // NOVA LÓGICA: CRIAÇÃO DE EXERCÍCIO PERSONALIZADO
+  // ----------------------------------------------------
+  
+  // 2. Pop-up para criar o novo exercício (Apenas o nome)
+  void _showCreateCustomExerciseDialog() {
+    final nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[850],
+          title: const Text("Adicionar Novo Exercício", style: TextStyle(color: Colors.white)),
+          content: TextField(
+            controller: nameController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              labelText: 'Nome do Exercício (Ex: Supino Inclinado)',
+              labelStyle: TextStyle(color: Colors.white70)
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFC7A868)),
+              child: const Text('Adicionar', style: TextStyle(color: Colors.black)),
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isEmpty) return; 
+
+                // Salva o exercício no TrainingManager
+                final manager = Provider.of<TrainingManager>(context, listen: false);
+                manager.addCustomExercise(
+                  groupName: widget.bodyPart,
+                  exerciseName: name,
+                );
+                
+                Navigator.of(dialogContext).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Exercício "$name" criado e adicionado à lista!', style: const TextStyle(color: Colors.black)), backgroundColor: const Color(0xFFC7A868))
+                );
+                // O setState não é necessário aqui, pois o Provider fará o rebuild.
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ----------------------------------------------------
+  // MÉTODOS EXISTENTES
+  // ----------------------------------------------------
 
   void _startWorkout() {
     if (_selectedExercises.isEmpty) {
@@ -64,7 +128,6 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
       _selectedExercises,
     );
     
-  
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -88,9 +151,33 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
     );
   }
 
+  // ----------------------------------------------------
+  // BUILD (Renderização)
+  // ----------------------------------------------------
+  
   @override
   Widget build(BuildContext context) {
-    final exercises = _getExercises(widget.bodyPart);
+    // Escuta as mudanças no TrainingManager para incluir novos exercícios personalizados
+    final manager = Provider.of<TrainingManager>(context); 
+
+    // 3. COMBINAÇÃO DE LISTAS
+    // Exercícios Padrões (apenas nomes)
+    final defaultExerciseNames = _getExercises(widget.bodyPart); 
+    
+    // Exercícios Personalizados (objetos WorkoutExercise)
+    final customKey = widget.bodyPart.toLowerCase();
+    final List<WorkoutExercise> customExercises = manager.customExercisesByGroup[customKey] ?? [];
+    
+    // Converte nomes padrão em objetos WorkoutExercise (para padronizar o ListTile)
+    final defaultExercises = defaultExerciseNames.map((name) => 
+        WorkoutExercise(name: name, setsReps: ExerciseSet(series: 3, repetitions: 10))
+    ).toList();
+    
+    // Combina todas as listas
+    final allExercises = [...defaultExercises, ...customExercises];
+    
+    // +1 para o botão "Adicionar Novo Exercício"
+    final itemCount = allExercises.length + 1; 
 
     return Scaffold(
       backgroundColor: Colors.black87,
@@ -116,17 +203,45 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
         ),
       ),
       body: ListView.builder(
-        itemCount: exercises.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
-          final exercise = exercises[index];
+          // O último item é o botão de Adicionar
+          if (index == allExercises.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: TextButton.icon(
+                onPressed: _showCreateCustomExerciseDialog, // Chama o novo pop-up
+                icon: const Icon(Icons.add_circle_outline, color: Color(0xFFC7A868), size: 24),
+                label: const Text(
+                  'CRIAR NOVO EXERCÍCIO',
+                  style: TextStyle(color: Color(0xFFC7A868), fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            );
+          }
+
+          // Itens de Exercício Padrão ou Personalizado
+          final exercise = allExercises[index];
+          
+          // O ícone muda para indicar que é personalizado
+          final icon = exercise.isCustom ? Icons.star : Icons.add_circle_outline;
+          final color = exercise.isCustom ? Colors.white : Colors.white70;
+
+
           return Card(
             color: Colors.grey[900], 
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
-              leading: const Icon(Icons.fitness_center, color: Color(0xFFC7A868)),
-              title: Text(exercise, style: const TextStyle(color: Colors.white, fontSize: 18)),
-              trailing: const Icon(Icons.add_circle_outline, color: Colors.white70),
-              onTap: () => _showSetRepSelection(context, exercise),
+              leading: Icon(Icons.fitness_center, color: const Color(0xFFC7A868)),
+              title: Text(
+                exercise.name, 
+                style: const TextStyle(color: Colors.white, fontSize: 18)
+              ),
+              subtitle: exercise.isCustom
+                  ? const Text('Exercício Personalizado', style: TextStyle(color: Color(0xFFC7A868)))
+                  : null, // Subtítulo só para customizados
+              trailing: Icon(icon, color: color),
+              onTap: () => _showSetRepSelection(context, exercise.name),
             ),
           );
         },
@@ -134,6 +249,8 @@ class _ExerciseOptionsPageState extends State<ExerciseOptionsPage> {
     );
   }
 }
+
+// O código SetRepSelectionDialog e o typedef AddExerciseCallback permanecem EXATAMENTE os mesmos:
 
 typedef AddExerciseCallback = void Function(String name, int series, int reps);
 

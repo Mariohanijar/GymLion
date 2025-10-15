@@ -1,3 +1,5 @@
+// lib/pages/training_selection_page.dart
+
 import 'package:flutter/material.dart';
 import 'exercise_options_page.dart'; 
 
@@ -25,6 +27,7 @@ class TrainingSelectionPage extends StatelessWidget {
     );
   }
 
+  // Widget para os botões de seleção de grupo (Sem botão de adicionar)
   Widget _buildTrainingOption(BuildContext context, String bodyPart) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -37,6 +40,7 @@ class TrainingSelectionPage extends StatelessWidget {
           textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
+          // Navega para a página de opções/montagem de treino
           Navigator.push(
             context,
             MaterialPageRoute(

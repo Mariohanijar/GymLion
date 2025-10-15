@@ -1,4 +1,3 @@
-// lib/pages/performance_page.dart
 import 'package:flutter/material.dart';
 class PerformancePage extends StatelessWidget {
   const PerformancePage({super.key});

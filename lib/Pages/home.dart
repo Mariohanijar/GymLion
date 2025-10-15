@@ -61,7 +61,6 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Área superior com GYMLION, Perfil e BOTÃO DE HISTÓRICO
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

@@ -1,5 +1,3 @@
-// lib/pages/login_page.dart - CÓDIGO FINAL E LIMPO
-
 import 'package:flutter/material.dart';
 import 'package:gym/user_session.dart';
 import 'package:http/http.dart' as http;

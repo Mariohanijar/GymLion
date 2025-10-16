@@ -45,6 +45,10 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
+        final user = UserSession.fromJson(data);
+        await SessionManager.saveSession(user);
+        _navigateToMainScreen();
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt('user_id', data['id']);
         await prefs.setString('username', data['username']);
@@ -54,7 +58,11 @@ class _LoginPageState extends State<LoginPage> {
           id: data['id'],
           username: data['username'],
           email: data['email'],
-          name:data['name']
+          name:data['name'],
+          phone: data['phone'], 
+          height: data['height'] is int ? (data['height'] as int).toDouble() : data['height'] as double,
+          weight: data['weight'] is int ? (data['weight'] as int).toDouble() : data['weight'] as double,
+          birthday: DateTime.parse(data['birthday']), 
         );
 
         _navigateToMainScreen();

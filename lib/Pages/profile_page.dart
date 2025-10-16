@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:gym/user_session.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
+import 'login_page.dart'; 
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+
+  Future<void> _logout(BuildContext context) async {
+
+    await SessionManager.destroySession();
+
+    // 2. Navega para a LoginPage e remove todas as rotas anteriores
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   Widget _buildDataRow({required String label, required String value}) {
     return Padding(
@@ -37,16 +50,18 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentUser = SessionManager.currentUser;
+    final primaryColor = Theme.of(context).primaryColor; // Cor dourada do seu tema
+    final ageDisplay = currentUser != null ? '${currentUser.age} anos' : 'Não disponível';
 
-    // Lógica para obter e formatar os dados
+
     final idDisplay = currentUser?.id.toString() ?? 'ID indisponível';
     final birthdayDisplay = currentUser != null
-        // ✅ FORMATANDO DATA: Usando DateFormat para exibir a data no formato BR (dd/MM/yyyy)
         ? DateFormat('dd/MM/yyyy').format(currentUser.birthday)
         : 'Não disponível';
 
+    // ✅ MANTENDO a lógica de conversão se a API retornar cm
     final heightDisplay = currentUser != null
-        ? '${(currentUser.height/100).toStringAsFixed(2)} m'
+        ? '${(currentUser.height / 100).toStringAsFixed(2)} m'
         : 'Não disponível';
 
     final weightDisplay = currentUser != null
@@ -83,7 +98,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 50),
 
-              // ✅ DADOS DE IDENTIFICAÇÃO BÁSICOS
+              // DADOS DE IDENTIFICAÇÃO BÁSICOS
               _buildDataRow(
                 label: 'Nome Completo',
                 value: currentUser?.name ?? 'Não disponível',
@@ -103,6 +118,11 @@ class ProfilePage extends StatelessWidget {
 
               const SizedBox(height: 30),
               
+              // DADOS DE SAÚDE E IDADE
+              _buildDataRow(
+                label: 'Idade',
+                value: ageDisplay,
+              ),
               _buildDataRow(
                 label: 'Data de Nascimento',
                 value: birthdayDisplay,
@@ -117,6 +137,27 @@ class ProfilePage extends StatelessWidget {
               ),
               
               const SizedBox(height: 40),
+
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => _logout(context), 
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor, 
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Sair',
+                    style: TextStyle(
+                      color: Colors.black, 
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
 
             ],
           ),

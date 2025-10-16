@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gym/user_session.dart';
 import 'package:provider/provider.dart';
 import 'Pages/training_manager.dart'; 
 import 'Pages/main_nav_page.dart';
@@ -22,54 +23,45 @@ const MaterialColor gymlionGold = MaterialColor(
   },
 );
 
-
-
-void main() async{
+void main() async {
    WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await dotenv.load(fileName: ".env"); 
-  } catch (e) {
-    debugPrint("ERRO CRÍTICO AO CARREGAR .ENV: $e");
-  }
-  runApp(
+  await dotenv.load(fileName: ".env");
 
-    ChangeNotifierProvider(
-      create: (context) => TrainingManager(), 
-      child: const MyApp(),
-    ),
-  );
+
+  final bool isLoggedIn = await SessionManager.loadSession();
+
+  runApp(MyApp(isLoggedIn: isLoggedIn)); 
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  @override
+  final bool isLoggedIn; 
+  const MyApp({super.key, required this.isLoggedIn});
+
+   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GYMLION',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-       
-        brightness: Brightness.dark,
-        primarySwatch: gymlionGold,
+     return MaterialApp(
+       title: 'GYMLION',
+       debugShowCheckedModeBanner: false,
+       theme: ThemeData(
+         brightness: Brightness.dark,
+         primarySwatch: gymlionGold,
         primaryColor: const Color(0xFFC7A868),
-        scaffoldBackgroundColor: Colors.black, 
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-          elevation: 0,
+         scaffoldBackgroundColor: Colors.black, 
+         appBarTheme: const AppBarTheme(
+         backgroundColor: Colors.black,
+         foregroundColor: Colors.white,
+       elevation: 0,
         ),
-     
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFC7A868),
-          secondary: Color(0xFFC7A868),
+         colorScheme: const ColorScheme.dark(
+           primary: Color(0xFFC7A868),
+           secondary: Color(0xFFC7A868),
           surface: Colors.black,
-        ),
+         ),
         useMaterial3: true,
-      ),
-    
-      home: const LoginPage(), 
-    
-    );
+      ), 
+       home: isLoggedIn ? const MainNavPage() : const LoginPage(), 
+
+     );
   }
 }

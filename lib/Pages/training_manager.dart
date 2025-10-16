@@ -1,7 +1,7 @@
 // lib/training_manager.dart
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart'; // Adicionado para usar ChangeNotifier
+import 'package:flutter/material.dart'; 
 
 class ExerciseSet {
   final int series;
@@ -38,20 +38,17 @@ class TrainingManager extends ChangeNotifier {
   List<Workout> get history => _history.reversed.toList();
   Map<String, List<WorkoutExercise>> get customExercisesByGroup => _customExercisesByGroup;
   
-  // ----------------------------------------------------
-  // MÉTODO PARA ADICIONAR UM EXERCÍCIO PERSONALIZADO (SIMPLIFICADO)
-  // ----------------------------------------------------
   void addCustomExercise({
     required String groupName,
     required String exerciseName,
   }) {
-    // Usa uma chave minúscula para consistência
+
     final key = groupName.trim().toLowerCase(); 
     
-    // Cria um exercício com Sets/Reps padrão (ou inicializa como 0/0)
+ 
     final newExercise = WorkoutExercise(
       name: exerciseName,
-      setsReps: ExerciseSet(series: 3, repetitions: 10), // Valores padrão para novo exercício
+      setsReps: ExerciseSet(series: 3, repetitions: 10), 
       isCustom: true, 
     );
 
@@ -63,11 +60,9 @@ class TrainingManager extends ChangeNotifier {
     
     debugPrint('Exercício personalizado adicionado: $exerciseName para $groupName');
     notifyListeners();
-    // Nota: O _currentWorkoutPlan não é alterado aqui, 
-    // ele será montado na ExerciseOptionsPage usando tanto os exercícios padrões quanto os customizados.
+
   }
-  
-  // Mantenha os outros métodos...
+
   void setWorkoutPlan(String bodyPart, List<WorkoutExercise> exercises) {
     _currentWorkoutPlan = exercises;
     debugPrint('Plano de treino atualizado: $bodyPart com ${exercises.length} exercícios.');

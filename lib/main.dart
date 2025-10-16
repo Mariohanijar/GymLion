@@ -26,16 +26,13 @@ const MaterialColor gymlionGold = MaterialColor(
 
 void main() async{
    WidgetsFlutterBinding.ensureInitialized();
-  
-  // O load DEVE estar aqui e ser aguardado (await)
   try {
     await dotenv.load(fileName: ".env"); 
   } catch (e) {
     debugPrint("ERRO CRÍTICO AO CARREGAR .ENV: $e");
-    // Se isso falhar, a chave no initState será nula, mesmo sem erro de sintaxe.
   }
   runApp(
-    // Envolve toda a aplicação com o TrainingManager (Provider)
+
     ChangeNotifierProvider(
       create: (context) => TrainingManager(), 
       child: const MyApp(),

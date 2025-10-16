@@ -54,7 +54,11 @@ class _LoginPageState extends State<LoginPage> {
           id: data['id'],
           username: data['username'],
           email: data['email'],
-          name:data['name']
+          name:data['name'],
+          phone: data['phone'], 
+          height: data['height'] is int ? (data['height'] as int).toDouble() : data['height'] as double,
+          weight: data['weight'] is int ? (data['weight'] as int).toDouble() : data['weight'] as double,
+          birthday: DateTime.parse(data['birthday']), 
         );
 
         _navigateToMainScreen();

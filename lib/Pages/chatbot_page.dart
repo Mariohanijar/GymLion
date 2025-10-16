@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:gym/user_session.dart';
+import 'package:intl/intl.dart';
 
-// ==========================================================
-// 1. MODELO DE DADOS
-// ==========================================================
-
-// Modelo simples para armazenar mensagens
 class ChatMessage {
   final String text;
   final bool isUser;
@@ -21,40 +18,72 @@ class ChatbotPage extends StatefulWidget {
 }
 
 class _ChatbotPageState extends State<ChatbotPage> {
+
+  final user = SessionManager.currentUser;
+
+  
   final TextEditingController _chatInputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   final List<ChatMessage> _messages = [];
-  late final GenerativeModel _model;
+
+  late final ChatSession _chat; 
   bool _isAILoading = false;
 
-  // Instrução do sistema (personalidade do coach)
-  final String _systemInstruction = """
+ // (personalidade do coach)
+  late final String _systemInstruction;
+
+ 
+
+ @override
+void initState() {
+  super.initState();
+
+  final user = SessionManager.currentUser;
+  
+  final height = user != null ? '${user.height.toStringAsFixed(2)} m' : 'Não Informada';
+  final weight = user != null ? '${user.weight.toStringAsFixed(1)} kg' : 'Não Informado';
+  final birthday = user != null 
+      ? DateFormat('dd/MM/yyyy').format(user.birthday) 
+      : 'Não Informada';
+  final ageDisplay = user != null? '${user.age}': 'Não disponível';
+
+  _systemInstruction = """
 Você é um coach de treino e nutrição chamado GymBro.
 Seu objetivo é ajudar o usuário a montar planos de treino e alimentação.
-Fale sempre de forma motivadora, direta e com linguagem simples.
-Não responda perguntas fora do tema de saúde, treino e nutrição.
+Fale sempre de forma motivadora, direta e com linguagem simples, mas educada e cordial, sem muita giria.
+Não responda perguntas fora do tema de saúde, treino e nutrição ou dados pessoais do usuário. Se for
+requisitado para montar um treino, evite treinos fullbody e priorize
+treinos ABC focados em uma só área do corpo.
+As informações do usuário são: 
+  - Altura: $height
+  - Peso: $weight
+  - Data de Nascimento: $birthday
+  - Idade: $ageDisplay
+  
 Se o usuário perguntar algo fora do tema, diga:
 'Posso te ajudar com treinos ou dieta, quer falar sobre isso?'
 """;
 
-  @override
-  void initState() {
-    super.initState();
+  final apiKey = dotenv.env['GOOGLE_API_KEY']!;
+  
+  final model = GenerativeModel(
+    model: 'gemini-2.5-flash', 
+    apiKey: apiKey,
+    systemInstruction: Content.text(_systemInstruction), 
+  );
 
-    // Inicialização do modelo Gemini
-    final apiKey = dotenv.env['GOOGLE_API_KEY']!;
-    _model = GenerativeModel(model: 'gemini-2.5-flash', apiKey: apiKey);
+  _chat = model.startChat(); 
 
-    // Mensagem inicial
-    _messages.add(
-      ChatMessage(
-        text:
-            "Olá! Eu sou o GymBro, seu coach de treino e nutrição. Pronto para montar um plano ou revisar sua dieta hoje?",
-        isUser: false,
-      ),
-    );
-  }
+
+  _messages.add(
+    ChatMessage(
+      text:
+          "Olá! Eu sou o GymBro, seu coach de treino e nutrição. Pronto para montar um plano ou revisar sua dieta hoje?",
+      isUser: false,
+    ),
+  );
+}
 
   @override
   void dispose() {
@@ -63,9 +92,6 @@ Se o usuário perguntar algo fora do tema, diga:
     super.dispose();
   }
 
-  // ==========================================================
-  // 2. ENVIO DE MENSAGEM PARA A IA
-  // ==========================================================
   void _sendMessage() async {
     final text = _chatInputController.text.trim();
     if (text.isEmpty || _isAILoading) return;
@@ -79,13 +105,7 @@ Se o usuário perguntar algo fora do tema, diga:
     _scrollToEnd();
 
     try {
-      // Envia a system instruction + conversa do usuário
-      final promptContent = [
-        Content.text(_systemInstruction),
-        Content.text(text),
-      ];
-
-      final response = await _model.generateContent(promptContent);
+      final response = await _chat.sendMessage(Content.text(text));
 
       final responseText =
           response.text ?? "Desculpe, não consegui gerar uma resposta.";
@@ -110,9 +130,6 @@ Se o usuário perguntar algo fora do tema, diga:
     }
   }
 
-  // ==========================================================
-  // 3. ROLAR PARA O FINAL DA LISTA
-  // ==========================================================
   void _scrollToEnd() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -125,9 +142,7 @@ Se o usuário perguntar algo fora do tema, diga:
     });
   }
 
-  // ==========================================================
-  // 4. BALÃO DE MENSAGEM
-  // ==========================================================
+
   Widget _buildMessageBubble(
     ChatMessage message,
     BuildContext context,
@@ -163,9 +178,6 @@ Se o usuário perguntar algo fora do tema, diga:
     );
   }
 
-  // ==========================================================
-  // 5. INTERFACE DO CHATBOT
-  // ==========================================================
   @override
   Widget build(BuildContext context) {
     final primaryColor = const Color(0xFFC7A868);
@@ -173,7 +185,7 @@ Se o usuário perguntar algo fora do tema, diga:
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('GymBro - Seu Coach de Treino 💪'),
+        title: const Text('GymBro'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -207,7 +219,7 @@ Se o usuário perguntar algo fora do tema, diga:
                   ),
                   SizedBox(width: 8),
                   Text(
-                    'GymBro está digitando...',
+                    'GymBro está pensando...',
                     style: TextStyle(color: Colors.white70),
                   ),
                 ],
